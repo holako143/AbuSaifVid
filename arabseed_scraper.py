@@ -2,6 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin, quote
 import re
+import base64
 
 BASE_URL = "https://a.asd.homes/"
 
@@ -40,23 +41,21 @@ class ArabSeedScraper:
         soup = BeautifulSoup(html_content, 'html.parser')
         results = []
         
-        # البحث عن الروابط في نتائج البحث
-        # سأبحث عن الروابط التي تحتوي على عنوان المحتوى
-        content_links = soup.find_all('a', href=lambda href: href and ('movie' in href or 'series' in href))
+        # New selectors for search results
+        content_cards = soup.select('div.item__contents')
+
+        for card in content_cards:
+            link_tag = card.find('a')
+            title_tag = card.find('h3')
             
-        for link in content_links:
-            title = link.text.strip()
-            url = link.get('href')
-            
-            # تنظيف العنوان من التقييمات والجودة
-            title = re.sub(r'^\d+\.\d+\s(افلام|مسلسلات)\s(اجنبي|عربي|تركيه|...)\s', '', title).strip()
-            title = re.sub(r'\s\(\s\d+\s\)', '', title).strip() # إزالة السنة بين قوسين
-            
-            if title and url and url.startswith('http'):
-                results.append({'title': title, 'url': url})
-            elif title and url and url.startswith('/'):
-                full_url = urljoin(BASE_URL, url)
-                results.append({'title': title, 'url': full_url})
+            if link_tag and title_tag:
+                url = link_tag.get('href')
+                title = title_tag.text.strip()
+
+                if title and url:
+                    if not url.startswith('http'):
+                        url = urljoin(BASE_URL, url)
+                    results.append({'title': title, 'url': url})
 
         # إزالة التكرارات
         unique_results = []
@@ -79,8 +78,8 @@ class ArabSeedScraper:
 
         soup = BeautifulSoup(html_content, 'html.parser')
         
-        # 1. البحث عن رابط صفحة التحميل (Download Page Link)
-        download_link_element = soup.find('a', text=lambda t: t and 'تحميل الان' in t)
+        # 1. Find the download page link
+        download_link_element = soup.find('a', class_='download__btn')
         
         if not download_link_element:
             return []
@@ -92,7 +91,7 @@ class ArabSeedScraper:
         if not download_page_url.startswith('http'):
             download_page_url = urljoin(content_url, download_page_url)
 
-        # 2. جلب محتوى صفحة التحميل
+        # 2. Fetch the download page content
         download_html_content = self._fetch_page(download_page_url)
         if not download_html_content:
             return []
@@ -101,30 +100,34 @@ class ArabSeedScraper:
         
         download_links = []
         
-        # 3. استخراج الروابط والجودات من صفحة التحميل
-        # البحث عن كل الروابط التي تحتوي على كلمة "التحميل الان"
-        all_download_buttons = download_soup.find_all('a', text=lambda t: t and 'التحميل الان' in t)
-        
-        for button in all_download_buttons:
-            link_url = button.get('href')
+        # 3. Extract links and qualities from the download page
+        quality_tabs = download_soup.select('div.tab__inner')
+
+        for tab in quality_tabs:
+            quality = tab.get('data-quality', 'غير محدد')
             
-            # البحث عن العنصر الأب لتحديد السيرفر والجودة
-            parent_div = button.find_parent('div')
-            if parent_div:
-                # محاولة استخراج اسم السيرفر
-                server_name_tag = parent_div.find('h4')
-                server = server_name_tag.text.strip() if server_name_tag else "غير محدد"
+            link_items = tab.select('a.download__item')
+
+            for item in link_items:
+                server_tag = item.find('h4')
+                server = server_tag.text.strip() if server_tag else "غير محدد"
                 
-                # محاولة استخراج الجودة من نص الزر
-                quality_match = [q for q in ['1080p', '720p', '480p', '360p', '240p'] if q in button.text]
-                quality = quality_match[0] if quality_match else "غير محدد"
+                encoded_url = item.get('href')
                 
-                if link_url:
-                    download_links.append({
-                        'quality': quality,
-                        'server': server,
-                        'link': link_url
-                    })
+                if encoded_url and '/l/' in encoded_url:
+                    try:
+                        # Extract the base64 part
+                        base64_str = encoded_url.split('/l/')[1]
+                        # Decode the URL
+                        decoded_url = base64.b64decode(base64_str).decode('utf-8')
+
+                        download_links.append({
+                            'quality': quality,
+                            'server': server,
+                            'link': decoded_url
+                        })
+                    except (IndexError, base64.binascii.Error, UnicodeDecodeError) as e:
+                        print(f"Could not decode URL {encoded_url}: {e}")
 
         return download_links
 
@@ -140,22 +143,21 @@ class ArabSeedScraper:
         soup = BeautifulSoup(html_content, 'html.parser')
         latest_content = []
         
-        # البحث عن بطاقات المحتوى الجديدة
-        content_cards = soup.find_all('a', href=lambda href: href and ('movie' in href or 'series' in href))
+        # New selectors
+        content_cards = soup.select('div.slider__single, div.item__contents')
         
         for card in content_cards:
-            title = card.text.strip()
-            url = card.get('href')
+            link_tag = card.find('a')
+            title_tag = card.find('h3')
             
-            # تنظيف العنوان من التقييمات والجودة
-            title = re.sub(r'^\d+\.\d+\s(افلام|مسلسلات)\s(اجنبي|عربي|تركيه|...)\s', '', title).strip()
-            title = re.sub(r'\s\(\s\d+\s\)', '', title).strip() # إزالة السنة بين قوسين
-            
-            if title and url and url.startswith('http'):
-                latest_content.append({'title': title, 'url': url})
-            elif title and url and url.startswith('/'):
-                full_url = urljoin(BASE_URL, url)
-                latest_content.append({'title': title, 'url': full_url})
+            if link_tag and title_tag:
+                url = link_tag.get('href')
+                title = title_tag.text.strip()
+
+                if title and url:
+                    if not url.startswith('http'):
+                        url = urljoin(BASE_URL, url)
+                    latest_content.append({'title': title, 'url': url})
 
         # إزالة التكرارات
         unique_content = []
@@ -165,4 +167,4 @@ class ArabSeedScraper:
                 unique_content.append(item)
                 seen_urls.add(item['url'])
                 
-        return unique_content[:20] # العودة بأول 20 عنصر كأحدث محتوى
+        return unique_content[:20]

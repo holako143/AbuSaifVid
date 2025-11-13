@@ -7,18 +7,18 @@
       "config": { "maxLambdaSize": "15mb", "runtime": "python3.9" }
     },
     {
-      "src": "index.html",
+      "src": "static/**",
       "use": "@vercel/static"
     }
   ],
   "routes": [
     {
-      "src": "/(.*)",
+      "src": "/(latest|search|links)",
       "dest": "main_api.py"
     },
     {
-      "src": "/",
-      "dest": "index.html"
+      "src": "/(.*)",
+      "dest": "/static/$1"
     }
   ]
 }
