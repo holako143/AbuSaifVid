@@ -1,5 +1,7 @@
+import os
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from typing import List
 from arabseed_scraper import ArabSeedScraper
@@ -77,6 +79,10 @@ async def get_links(item: ContentItem):
 @app.get("/", summary="حالة الـ API")
 async def root():
     return {"message": "ArabSeed Downloader API is running."}
+
+# تركيب الملفات الثابتة لخدمة الواجهة الأمامية
+static_path = os.path.join(os.path.dirname(__file__), "static")
+app.mount("/", StaticFiles(directory=static_path, html=True), name="static")
 
 if __name__ == "__main__":
     import uvicorn
