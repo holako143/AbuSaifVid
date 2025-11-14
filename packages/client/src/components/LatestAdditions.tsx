@@ -1,96 +1,94 @@
+import { useState } from 'react';
+
+interface Server {
+  name: string;
+  quality: string;
+  url: string;
+}
+
 interface CardData {
   id: number;
   imageUrl: string;
   title: string;
-  description: string;
-  downloadLinks: { label: string; url: string }[];
+  category: string;
+  episode?: number;
+  servers: Server[];
 }
 
 const dummyData: CardData[] = [
   {
     id: 1,
-    imageUrl: 'https://via.placeholder.com/300x200',
-    title: 'فيلم جديد',
-    description: 'وصف قصير للفيلم الجديد.',
-    downloadLinks: [
-      { label: 'تحميل مباشر - فيلم', url: '#' },
-      { label: 'تورنت - فيلم', url: '#' },
+    imageUrl: 'https://via.placeholder.com/300x450',
+    title: 'فيلم الأكشن الجديد',
+    category: 'أفلام أجنبية',
+    servers: [
+      { name: 'سيرفر 1', quality: '1080p', url: '#' },
+      { name: 'سيرفر 2', quality: '720p', url: '#' },
     ],
   },
   {
     id: 2,
-    imageUrl: 'https://via.placeholder.com/300x200',
-    title: 'مسلسل جديد',
-    description: 'وصف قصير للمسلسل الجديد.',
-    downloadLinks: [
-      { label: 'تحميل مباشر - مسلسل', url: '#' },
-      { label: 'تورنت - مسلسل', url: '#' },
+    imageUrl: 'https://via.placeholder.com/300x450',
+    title: 'مسلسل الدراما',
+    category: 'مسلسلات تركية',
+    episode: 5,
+    servers: [
+      { name: 'سيرفر 1', quality: '1080p', url: '#' },
+      { name: 'سيرفر 2', quality: '720p', url: '#' },
+      { name: 'سيرفر 3', quality: '480p', url: '#' },
     ],
   },
-  {
-    id: 3,
-    imageUrl: 'https://via.placeholder.com/300x200',
-    title: 'برنامج جديد',
-    description: 'وصف قصير للبرنامج الجديد.',
-    downloadLinks: [
-      { label: 'تحميل مباشر - برنامج', url: '#' },
-      { label: 'تورنت - برنامج', url: '#' },
-    ],
-  },
-    {
-    id: 4,
-    imageUrl: 'https://via.placeholder.com/300x200',
-    title: 'فيلم جديد',
-    description: 'وصف قصير للفيلم الجديد.',
-        downloadLinks: [
-      { label: 'تحميل مباشر - فيلم', url: '#' },
-      { label: 'تورنت - فيلم', url: '#' },
-    ],
-  },
-  {
-    id: 5,
-    imageUrl: 'https://via.placeholder.com/300x200',
-    title: 'مسلسل جديد',
-    description: 'وصف قصير للمسلسل الجديد.',
-        downloadLinks: [
-      { label: 'تحميل مباشر - مسلسل', url: '#' },
-      { label: 'تورنت - مسلسل', url: '#' },
-    ],
-  },
-  {
-    id: 6,
-    imageUrl: 'https://via.placeholder.com/300x200',
-    title: 'برنامج جديد',
-    description: 'وصف قصير للبرنامج الجديد.',
-        downloadLinks: [
-      { label: 'تحميل مباشر - برنامج', url: '#' },
-      { label: 'تورنت - برنامج', url: '#' },
-    ],
-  },
+  // Add more dummy data as needed...
 ];
 
-interface LatestAdditionsProps {
-  onCardClick: (downloadLinks: { label: string; url: string }[]) => void;
-}
+export const LatestAdditions = () => {
+  const [expandedCardId, setExpandedCardId] = useState<number | null>(null);
+  const duplicatedData = [...dummyData, ...dummyData, ...dummyData];
 
-export const LatestAdditions = ({ onCardClick }: LatestAdditionsProps) => {
-  const duplicatedData = [...dummyData, ...dummyData];
+  const handleCardClick = (id: number) => {
+    setExpandedCardId(expandedCardId === id ? null : id);
+  };
 
   return (
-    <div className="relative w-full overflow-hidden">
-      <h2 className="text-2xl font-bold text-center mb-8">أحدث الإضافات</h2>
-      <div className="flex animate-scroll">
+    <div className="relative w-full overflow-hidden my-8">
+      <div className="flex animate-scroll group">
         {duplicatedData.map((item, index) => (
           <div
             key={`${item.id}-${index}`}
-            className="flex-shrink-0 w-80 bg-gray-800 rounded-lg p-4 mx-4 cursor-pointer hover:bg-gray-700 transition-colors"
-            onClick={() => onCardClick(item.downloadLinks)}
+            className={`flex-shrink-0 w-64 bg-gray-800 rounded-lg mx-4 cursor-pointer overflow-hidden transform transition-all duration-500 ${
+              expandedCardId === item.id ? 'scale-110' : 'hover:scale-105'
+            }`}
+            onClick={() => handleCardClick(item.id)}
           >
-            <img src={item.imageUrl} alt={item.title} className="rounded-md mb-4 object-cover h-48 w-full" />
-            <div className="text-right">
-              <h3 className="text-xl font-bold mb-2">{item.title}</h3>
-              <p className="text-gray-400">{item.description}</p>
+            <div className="relative">
+              <img src={item.imageUrl} alt={item.title} className="w-full h-96 object-cover" />
+              <div className="absolute inset-0 bg-black bg-opacity-50 flex items-end p-4 opacity-0 transition-opacity duration-300 hover:opacity-100">
+                <h3 className="text-xl font-bold">{item.title}</h3>
+              </div>
+              {item.episode && (
+                <div className="absolute top-2 right-2 bg-red-600 text-white text-sm font-bold px-2 py-1 rounded">
+                  الحلقة {item.episode}
+                </div>
+              )}
             </div>
+            <div className="p-4 text-right">
+              <p className="text-gray-400">{item.category}</p>
+            </div>
+            {expandedCardId === item.id && (
+              <div className="p-4 bg-gray-700">
+                <h4 className="text-lg font-bold mb-2">سيرفرات التحميل</h4>
+                <ul className="space-y-2">
+                  {item.servers.map((server) => (
+                    <li key={server.name}>
+                      <a href={server.url} className="flex justify-between items-center bg-gray-600 p-2 rounded hover:bg-gray-500">
+                        <span>{server.name}</span>
+                        <span className="text-sm bg-blue-500 px-2 py-1 rounded">{server.quality}</span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         ))}
       </div>
