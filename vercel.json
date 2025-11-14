@@ -2,14 +2,27 @@
   "version": 2,
   "builds": [
     {
+      "src": "packages/client/package.json",
+      "use": "@vercel/static-build",
+      "configuration": {
+        "installCommand": "pnpm install",
+        "buildCommand": "pnpm --filter client build",
+        "outputDirectory": "packages/client/dist"
+      }
+    },
+    {
       "src": "packages/server/src/index.ts",
       "use": "@vercel/node"
     }
   ],
-  "routes": [
+  "rewrites": [
     {
-      "src": "/(.*)",
-      "dest": "packages/server/src/index.ts"
+      "source": "/trpc/:path*",
+      "destination": "/packages/server/src/index.ts"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/packages/client/dist/index.html"
     }
   ]
 }
