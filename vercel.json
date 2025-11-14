@@ -1,0 +1,27 @@
+{
+  "version": 2,
+  "installCommand": "pnpm install --shamefully-hoist",
+  "builds": [
+    {
+      "src": "packages/client/package.json",
+      "use": "@vercel/static-build"
+    },
+    {
+      "src": "packages/server/src/index.ts",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/trpc/(.*)",
+      "dest": "/packages/server/src/index.ts"
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ]
+}
