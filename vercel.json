@@ -2,25 +2,25 @@
   "installCommand": "pnpm install",
   "builds": [
     {
-      "src": "packages/client/vite.config.ts",
+      "src": "packages/client/package.json",
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "packages/client/dist"
+        "distDir": "dist"
       }
     },
     {
-      "src": "packages/server/src/index.ts",
+      "src": "packages/server/package.json",
       "use": "@vercel/node"
     }
   ],
-  "routes": [
+  "rewrites": [
     {
-      "src": "/trpc/(.*)",
-      "dest": "/packages/server/src/index.ts"
+      "source": "/trpc/(.*)",
+      "destination": "/packages/server/dist/index.js"
     },
     {
-      "src": "/(.*)",
-      "dest": "/packages/client/dist/index.html"
+      "source": "/(.*)",
+      "destination": "/packages/client/dist/index.html"
     }
   ]
 }
