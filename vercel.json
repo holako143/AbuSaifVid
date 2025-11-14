@@ -1,5 +1,5 @@
 {
-  "installCommand": "pnpm install",
+  "installCommand": "pnpm install --shamefully-hoist",
   "builds": [
     {
       "src": "packages/client/package.json",
@@ -9,18 +9,21 @@
       }
     },
     {
-      "src": "packages/server/package.json",
+      "src": "packages/server/src/index.ts",
       "use": "@vercel/node"
     }
   ],
-  "rewrites": [
+  "routes": [
     {
-      "source": "/trpc/(.*)",
-      "destination": "/packages/server/dist/index.js"
+      "src": "/trpc/(.*)",
+      "dest": "/packages/server/src/index.ts"
     },
     {
-      "source": "/(.*)",
-      "destination": "/packages/client/dist/index.html"
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
     }
   ]
 }
