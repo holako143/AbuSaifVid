@@ -140,11 +140,11 @@ class ArabSeedScraper:
         soup = BeautifulSoup(html_content, 'html.parser')
         latest_content = []
         
-        # البحث عن بطاقات المحتوى الجديدة
-        content_cards = soup.find_all('a', href=lambda href: href and ('movie' in href or 'series' in href))
+        # Updated selector to find content cards
+        content_cards = soup.select('li.box__xs__2 .item__contents a.movie__block')
         
         for card in content_cards:
-            title = card.text.strip()
+            title = card.get('title', '').strip()
             url = card.get('href')
             
             # تنظيف العنوان من التقييمات والجودة
