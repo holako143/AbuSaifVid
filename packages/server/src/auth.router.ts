@@ -1,10 +1,8 @@
-import { initTRPC } from '@trpc/server';
+import { t } from './trpc';
 import { z } from 'zod';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { prisma } from './db';
-
-const t = initTRPC.create();
 
 export const authRouter = t.router({
   signup: t.procedure

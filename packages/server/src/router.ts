@@ -1,8 +1,6 @@
-import { initTRPC } from '@trpc/server';
+import { t } from './trpc';
 import { z } from 'zod';
 import { authRouter } from './auth.router';
-
-const t = initTRPC.create();
 
 export const appRouter = t.router({
   auth: authRouter,
