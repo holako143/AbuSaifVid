@@ -28,7 +28,7 @@ class ArabSeedScraper:
     def search_content(self, query):
         """
         البحث عن محتوى (فيلم/مسلسل) باستخدام كلمة مفتاحية.
-        يعود بقائمة من النتائج: [{title, url}]
+        يعود بقائمة من النتائج: [{title, url, image_url}]
         """
         # يتم ترميز الاستعلام للغة العربية
         search_url = urljoin(BASE_URL, f"search/{quote(query)}/")
@@ -40,22 +40,27 @@ class ArabSeedScraper:
         soup = BeautifulSoup(html_content, 'html.parser')
         results = []
         
-        # Updated selector for search results
-        content_links = soup.select('.item__contents a')
+        # Updated selector for search results to get the whole item container
+        content_items = soup.select('.item__contents')
             
-        for link in content_links:
-            title = link.get('title', '').strip()
-            url = link.get('href')
+        for item in content_items:
+            link_element = item.select_one('a')
+            if not link_element:
+                continue
+
+            title = link_element.get('title', '').strip()
+            url = link_element.get('href')
             
+            image_element = item.select_one('img')
+            image_url = image_element.get('data-src', '') if image_element else ''
+
             # تنظيف العنوان من التقييمات والجودة
             title = re.sub(r'^\d+\.\d+\s(افلام|مسلسلات)\s(اجنبي|عربي|تركيه|...)\s', '', title).strip()
             title = re.sub(r'\s\(\s\d+\s\)', '', title).strip() # إزالة السنة بين قوسين
             
-            if title and url and url.startswith('http'):
-                results.append({'title': title, 'url': url})
-            elif title and url and url.startswith('/'):
-                full_url = urljoin(BASE_URL, url)
-                results.append({'title': title, 'url': full_url})
+            if title and url:
+                full_url = url if url.startswith('http') else urljoin(BASE_URL, url)
+                results.append({'title': title, 'url': full_url, 'image_url': image_url})
 
         # إزالة التكرارات
         unique_results = []
@@ -132,7 +137,7 @@ class ArabSeedScraper:
     def get_latest_content(self):
         """
         جلب أحدث المحتوى من الصفحة الرئيسية.
-        يعود بقائمة من النتائج: [{title, url}]
+        يعود بقائمة من النتائج: [{title, url, image_url}]
         """
         html_content = self._fetch_page(urljoin(BASE_URL, "main0/"))
         if not html_content:
@@ -141,22 +146,27 @@ class ArabSeedScraper:
         soup = BeautifulSoup(html_content, 'html.parser')
         latest_content = []
         
-        # Updated selector to find content cards
-        content_cards = soup.select('li.box__xs__2 .item__contents a.movie__block')
+        # Updated selector to find content cards containers
+        content_items = soup.select('li.box__xs__2 .item__contents')
         
-        for card in content_cards:
-            title = card.get('title', '').strip()
-            url = card.get('href')
-            
+        for item in content_items:
+            link_element = item.select_one('a.movie__block')
+            if not link_element:
+                continue
+
+            title = link_element.get('title', '').strip()
+            url = link_element.get('href')
+
+            image_element = item.select_one('img')
+            image_url = image_element.get('data-src', '') if image_element else ''
+
             # تنظيف العنوان من التقييمات والجودة
             title = re.sub(r'^\d+\.\d+\s(افلام|مسلسلات)\s(اجنبي|عربي|تركيه|...)\s', '', title).strip()
             title = re.sub(r'\s\(\s\d+\s\)', '', title).strip() # إزالة السنة بين قوسين
             
-            if title and url and url.startswith('http'):
-                latest_content.append({'title': title, 'url': url})
-            elif title and url and url.startswith('/'):
-                full_url = urljoin(BASE_URL, url)
-                latest_content.append({'title': title, 'url': full_url})
+            if title and url:
+                full_url = url if url.startswith('http') else urljoin(BASE_URL, url)
+                latest_content.append({'title': title, 'url': full_url, 'image_url': image_url})
 
         # إزالة التكرارات
         unique_content = []

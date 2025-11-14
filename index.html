@@ -4,385 +4,251 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ArabSeed Downloader - جالب الروابط المباشرة</title>
+    <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
     <style>
-        /* تصميم احترافي ومناسب للجوال */
         :root {
-            --primary-color: #e50914; /* لون أحمر مستوحى من منصات البث */
-            --secondary-color: #f5f5f1; /* لون فاتح للخلفية */
-            --dark-color: #141414; /* لون داكن للخلفية الرئيسية */
-            --card-bg: #222222; /* لون خلفية البطاقات */
-            --text-color: #ffffff;
+            --primary-color: #e50914;
+            --dark-color: #141414;
+            --card-bg: #222;
+            --text-color: #fff;
         }
-
         body {
             font-family: 'Arial', sans-serif;
             background-color: var(--dark-color);
             color: var(--text-color);
             margin: 0;
-            padding: 0;
-            direction: rtl;
         }
-
         .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
         }
-
         header {
             text-align: center;
             padding: 20px 0;
             border-bottom: 2px solid var(--primary-color);
-            margin-bottom: 20px;
         }
-
-        header h1 {
-            color: var(--primary-color);
-            font-size: 2.5em;
-            margin: 0;
-        }
-
-        /* شريط البحث */
         .search-bar {
             display: flex;
-            gap: 10px;
             margin-bottom: 30px;
         }
-
-        .search-bar input[type="text"] {
+        .search-bar input {
             flex-grow: 1;
-            padding: 12px 15px;
+            padding: 12px;
             border: none;
-            border-radius: 8px;
+            border-radius: 8px 0 0 8px;
             background-color: var(--card-bg);
             color: var(--text-color);
-            font-size: 1em;
-            transition: border-color 0.3s;
         }
-
-        .search-bar input[type="text"]:focus {
-            outline: none;
-            border: 2px solid var(--primary-color);
-        }
-
         .search-bar button {
             padding: 12px 25px;
             background-color: var(--primary-color);
             color: var(--text-color);
             border: none;
-            border-radius: 8px;
+            border-radius: 0 8px 8px 0;
             cursor: pointer;
-            font-size: 1em;
-            font-weight: bold;
-            transition: background-color 0.3s;
         }
-
-        .search-bar button:hover {
-            background-color: #ff3333;
+        .swiper-container {
+            width: 100%;
+            height: 450px;
         }
-
-        /* منطقة المحتوى */
-        .content-section h2 {
-            font-size: 1.8em;
-            color: var(--secondary-color);
-            margin-bottom: 20px;
-            border-right: 4px solid var(--primary-color);
-            padding-right: 10px;
-        }
-
-        .content-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
-        }
-
-        /* بطاقة المحتوى */
-        .content-card {
-            background-color: var(--card-bg);
+        .swiper-slide {
+            width: 300px;
+            height: 450px;
+            position: relative;
+            overflow: hidden;
             border-radius: 10px;
-            padding: 15px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
             transition: transform 0.3s;
         }
-
-        .content-card:hover {
-            transform: translateY(-5px);
+        .swiper-slide:hover {
+            transform: scale(1.05);
         }
-
-        .content-card h3 {
-            font-size: 1.2em;
-            margin-top: 0;
-            color: var(--primary-color);
-        }
-
-        .content-card button {
+        .card-image {
             width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .card-title {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
             padding: 10px;
-            margin-top: 10px;
-            background-color: #333;
-            color: var(--text-color);
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
+            background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+            text-align: center;
         }
-
-        .content-card button:hover {
-            background-color: #555;
-        }
-
-        /* قائمة الروابط */
         .links-container {
-            margin-top: 15px;
-            padding-top: 10px;
-            border-top: 1px solid #444;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            padding: 20px;
+            overflow-y: auto;
+            transform: translateY(100%);
+            transition: transform 0.4s ease-in-out;
+            color: #fff;
         }
-
+        .swiper-slide.expanded .links-container {
+            transform: translateY(0);
+        }
         .link-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 8px 0;
-            border-bottom: 1px dashed #333;
+            border-bottom: 1px dashed #555;
         }
-
-        .link-item:last-child {
-            border-bottom: none;
-        }
-
-        .link-info {
-            font-size: 0.9em;
-            color: var(--secondary-color);
-        }
-
         .link-button {
             padding: 6px 12px;
             background-color: var(--primary-color);
             color: var(--text-color);
             border: none;
             border-radius: 5px;
-            cursor: pointer;
-            font-size: 0.9em;
-            transition: background-color 0.3s;
+            text-decoration: none;
         }
-
-        .link-button:hover {
-            background-color: #ff3333;
-        }
-
-        /* رسائل الحالة */
-        .status-message {
+        #status-message {
             text-align: center;
             padding: 20px;
-            font-size: 1.1em;
-            color: var(--secondary-color);
-        }
-
-        .loading-spinner {
-            border: 4px solid rgba(255, 255, 255, 0.1);
-            border-top: 4px solid var(--primary-color);
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* تصميم الجوال */
-        @media (max-width: 600px) {
-            .container {
-                padding: 10px;
-            }
-            header h1 {
-                font-size: 2em;
-            }
-            .search-bar {
-                flex-direction: column;
-            }
-            .search-bar button {
-                width: 100%;
-            }
-            .content-list {
-                grid-template-columns: 1fr;
-            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>جالب روابط عرب سيد المباشرة</h1>
-            <p>ابحث عن الأفلام والمسلسلات واحصل على روابط التحميل المباشرة بجميع الجودات.</p>
+            <h1>جالب روابط عرب سيد</h1>
         </header>
-
         <div class="search-bar">
-            <input type="text" id="search-input" placeholder="أدخل اسم الفيلم أو المسلسل..." onkeypress="if(event.key === 'Enter') searchContent()">
+            <input type="text" id="search-input" placeholder="ابحث عن فيلم أو مسلسل...">
             <button onclick="searchContent()">بحث</button>
         </div>
-
-        <div class="content-section">
-            <h2 id="content-title">أحدث الإضافات</h2>
-            <div id="content-list" class="content-list">
-                <!-- سيتم ملء المحتوى هنا بواسطة JavaScript -->
+        <div id="status-message"></div>
+        <div class="swiper-container">
+            <div class="swiper-wrapper" id="content-slider">
+                <!-- البطاقات ستضاف هنا -->
             </div>
-            <div id="status-message" class="status-message">
-                <div class="loading-spinner"></div>
-                جاري تحميل أحدث الإضافات...
-            </div>
+            <div class="swiper-pagination"></div>
         </div>
     </div>
 
+    <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
     <script>
-        // Use a relative path for the API to work on any domain
         const API_BASE_URL = '';
-
-        const contentList = document.getElementById('content-list');
-        const statusMessage = document.getElementById('status-message');
-        const contentTitle = document.getElementById('content-title');
+        const contentSlider = document.getElementById('content-slider');
         const searchInput = document.getElementById('search-input');
+        const statusMessage = document.getElementById('status-message');
+        let swiper;
 
-        // دالة لجلب البيانات من الـ API
         async function fetchData(endpoint, method = 'GET', body = null) {
             const options = {
                 method: method,
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
             };
             if (body) {
                 options.body = JSON.stringify(body);
             }
-
             try {
                 const response = await fetch(`${API_BASE_URL}${endpoint}`, options);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
+                if (!response.ok) throw new Error('Network response was not ok');
                 return await response.json();
             } catch (error) {
-                console.error('Fetch error:', error);
-                statusMessage.innerHTML = `<p style="color: ${getComputedStyle(document.documentElement).getPropertyValue('--primary-color')}">خطأ في الاتصال بالخادم أو جلب البيانات. تأكد من تشغيل الـ API.</p>`;
+                statusMessage.innerHTML = 'خطأ في الاتصال بالخادم.';
                 return null;
             }
         }
 
-        // دالة لعرض رسالة الحالة
-        function showStatus(message, isLoading = false) {
-            contentList.innerHTML = '';
-            statusMessage.style.display = 'block';
-            if (isLoading) {
-                statusMessage.innerHTML = `<div class="loading-spinner"></div><p>${message}</p>`;
-            } else {
-                statusMessage.innerHTML = `<p>${message}</p>`;
-            }
-        }
-
-        // دالة لجلب أحدث المحتوى
         async function loadLatestContent() {
-            contentTitle.textContent = 'أحدث الإضافات';
-            showStatus('جاري تحميل أحدث الإضافات...', true);
+            statusMessage.innerHTML = 'جاري تحميل أحدث الإضافات...';
             const data = await fetchData('/latest');
+            statusMessage.innerHTML = '';
             if (data) {
                 displayContent(data);
             }
         }
 
-        // دالة للبحث عن محتوى
         async function searchContent() {
             const query = searchInput.value.trim();
-            if (!query) {
-                showStatus('الرجاء إدخال كلمة للبحث.');
-                return;
-            }
-
-            contentTitle.textContent = `نتائج البحث عن: "${query}"`;
-            showStatus(`جاري البحث عن: ${query}...`, true);
+            if (!query) return;
+            statusMessage.innerHTML = `جاري البحث عن: ${query}...`;
             const data = await fetchData(`/search?query=${encodeURIComponent(query)}`);
+            statusMessage.innerHTML = '';
             if (data) {
                 displayContent(data);
             }
         }
 
-        // دالة لعرض قائمة المحتوى
         function displayContent(content) {
-            statusMessage.style.display = 'none';
-            contentList.innerHTML = '';
-
+            contentSlider.innerHTML = '';
             if (content.length === 0) {
-                showStatus('لا توجد نتائج مطابقة.');
+                statusMessage.innerHTML = 'لا توجد نتائج.';
+                if (swiper) swiper.destroy();
+                swiper = new Swiper('.swiper-container', {}); // Re-init empty swiper
                 return;
             }
-
             content.forEach(item => {
-                const card = document.createElement('div');
-                card.className = 'content-card';
-                card.innerHTML = `
-                    <h3>${item.title}</h3>
-                    <button onclick="toggleLinks(this, '${item.url}', '${item.title}')">جلب الروابط</button>
-                    <div class="links-container" style="display: none;"></div>
+                const slide = document.createElement('div');
+                slide.className = 'swiper-slide';
+                slide.innerHTML = `
+                    <img src="${item.image_url}" class="card-image" alt="${item.title}" onerror="this.src='https://via.placeholder.com/300x450';">
+                    <div class="card-title"><h3>${item.title}</h3></div>
+                    <div class="links-container"></div>
                 `;
-                contentList.appendChild(card);
+                slide.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('link-button')) return;
+                    toggleLinks(slide, item.url, item.title);
+                });
+                contentSlider.appendChild(slide);
+            });
+
+            if (swiper) swiper.destroy();
+            swiper = new Swiper('.swiper-container', {
+                loop: content.length > 3,
+                slidesPerView: 'auto',
+                spaceBetween: 20,
+                centeredSlides: true,
+                pagination: {
+                    el: '.swiper-pagination',
+                    clickable: true,
+                },
             });
         }
 
-        // دالة لتبديل عرض الروابط
-        async function toggleLinks(button, url, title) {
-            const linksContainer = button.nextElementSibling;
+        async function toggleLinks(slide, url, title) {
+            const linksContainer = slide.querySelector('.links-container');
+            const isExpanded = slide.classList.contains('expanded');
 
-            if (linksContainer.style.display === 'block') {
-                linksContainer.style.display = 'none';
-                button.textContent = 'جلب الروابط';
-                return;
-            }
-
-            // إخفاء جميع الروابط الأخرى
-            document.querySelectorAll('.links-container').forEach(container => {
-                if (container !== linksContainer) {
-                    container.style.display = 'none';
-                    container.previousElementSibling.textContent = 'جلب الروابط';
-                }
+            document.querySelectorAll('.swiper-slide.expanded').forEach(s => {
+                if (s !== slide) s.classList.remove('expanded');
             });
 
-            button.textContent = 'جاري الجلب...';
-            linksContainer.style.display = 'block';
-            linksContainer.innerHTML = `<div class="loading-spinner" style="width: 20px; height: 20px;"></div>`;
+            slide.classList.toggle('expanded');
 
-            const data = await fetchData('/links', 'POST', { title: title, url: url });
-
-            if (data) {
-                displayDownloadLinks(linksContainer, data);
-                button.textContent = 'إخفاء الروابط';
-            } else {
-                linksContainer.innerHTML = `<p style="color: ${getComputedStyle(document.documentElement).getPropertyValue('--primary-color')}">فشل جلب الروابط.</p>`;
-                button.textContent = 'جلب الروابط';
+            if (!isExpanded && linksContainer.innerHTML === '') {
+                linksContainer.innerHTML = 'جاري جلب الروابط...';
+                const links = await fetchData('/links', 'POST', { url: url, title: title });
+                displayDownloadLinks(linksContainer, links);
             }
         }
 
-        // دالة لعرض روابط التحميل
         function displayDownloadLinks(container, links) {
             container.innerHTML = '';
-            if (links.length === 0) {
-                container.innerHTML = '<p class="link-info">لم يتم العثور على روابط تحميل.</p>';
+            if (!links || links.length === 0) {
+                container.innerHTML = 'لا توجد روابط تحميل.';
                 return;
             }
-
             links.forEach(link => {
                 const item = document.createElement('div');
                 item.className = 'link-item';
                 item.innerHTML = `
-                    <span class="link-info">[${link.quality}] - ${link.server}</span>
-                    <a href="${link.link}" target="_blank" class="link-button">تحميل مباشر</a>
+                    <span>[${link.quality}] - ${link.server}</span>
+                    <a href="${link.link}" target="_blank" class="link-button" onclick="event.stopPropagation();">تحميل</a>
                 `;
                 container.appendChild(item);
             });
         }
 
-        // بدء تحميل المحتوى عند تحميل الصفحة
         window.onload = loadLatestContent;
     </script>
 </body>

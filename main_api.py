@@ -14,9 +14,9 @@ app = FastAPI(
 # تهيئة CORS للسماح للواجهة الأمامية بالوصول
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # السماح بالوصول من أي نطاق (ضروري للاختبار والنشر على Vercel)
+    allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 
@@ -27,6 +27,7 @@ scraper = ArabSeedScraper()
 class ContentItem(BaseModel):
     title: str
     url: str
+    image_url: str
 
 class DownloadLink(BaseModel):
     quality: str
