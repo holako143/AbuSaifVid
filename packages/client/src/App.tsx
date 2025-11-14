@@ -1,11 +1,13 @@
-import { Auth } from './Auth';
+import { MovieList } from './MovieList';
+// import { Auth } from './Auth';
 
 function App() {
   return (
-    <div className="bg-gray-900 text-white min-h-screen flex items-center justify-center">
-      <div className="flex flex-col gap-8">
-        <h1 className="text-4xl text-center">React 19 + Tailwind CSS 4 + tRPC</h1>
-        <Auth />
+    <div className="bg-gray-900 text-white min-h-screen p-8">
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-4xl text-center mb-8">Movie Link Manager</h1>
+        <MovieList />
+        {/* <Auth /> */}
       </div>
     </div>
   );

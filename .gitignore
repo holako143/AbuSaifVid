@@ -17,3 +17,6 @@ lerna-debug.log*
 # Other
 .env
 .DS_Store
+
+# Prisma
+packages/server/prisma/dev.db

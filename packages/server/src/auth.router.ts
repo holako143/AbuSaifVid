@@ -1,13 +1,11 @@
-import { initTRPC } from '@trpc/server';
 import { z } from 'zod';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { prisma } from './db';
+import { router, procedure } from './trpc';
 
-const t = initTRPC.create();
-
-export const authRouter = t.router({
-  signup: t.procedure
+export const authRouter = router({
+  signup: procedure
     .input(z.object({
       email: z.string().email(),
       password: z.string().min(8),
@@ -27,7 +25,7 @@ export const authRouter = t.router({
         user,
       };
     }),
-  login: t.procedure
+  login: procedure
     .input(z.object({
       email: z.string().email(),
       password: z.string(),

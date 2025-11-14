@@ -1,12 +1,12 @@
-import { initTRPC } from '@trpc/server';
 import { z } from 'zod';
 import { authRouter } from './auth.router';
+import { movieRouter } from './movie.router';
+import { router, procedure } from './trpc';
 
-const t = initTRPC.create();
-
-export const appRouter = t.router({
+export const appRouter = router({
   auth: authRouter,
-  hello: t.procedure
+  movie: movieRouter,
+  hello: procedure
     .input(z.object({ text: z.string() }))
     .query(({ input }) => {
       return {

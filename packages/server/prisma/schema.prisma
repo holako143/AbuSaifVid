@@ -26,3 +26,18 @@ model Session {
   createdAt DateTime @default(now())
   expiresAt DateTime
 }
+
+model Movie {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  links       Link[]
+}
+
+model Link {
+  id        Int      @id @default(autoincrement())
+  url       String
+  type      String   // e.g., "Download", "Stream"
+  movieId   Int
+  movie     Movie    @relation(fields: [movieId], references: [id])
+}
