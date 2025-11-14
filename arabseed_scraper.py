@@ -40,12 +40,11 @@ class ArabSeedScraper:
         soup = BeautifulSoup(html_content, 'html.parser')
         results = []
         
-        # البحث عن الروابط في نتائج البحث
-        # سأبحث عن الروابط التي تحتوي على عنوان المحتوى
-        content_links = soup.find_all('a', href=lambda href: href and ('movie' in href or 'series' in href))
+        # Updated selector for search results
+        content_links = soup.select('.item__contents a')
             
         for link in content_links:
-            title = link.text.strip()
+            title = link.get('title', '').strip()
             url = link.get('href')
             
             # تنظيف العنوان من التقييمات والجودة
@@ -79,8 +78,8 @@ class ArabSeedScraper:
 
         soup = BeautifulSoup(html_content, 'html.parser')
         
-        # 1. البحث عن رابط صفحة التحميل (Download Page Link)
-        download_link_element = soup.find('a', text=lambda t: t and 'تحميل الان' in t)
+        # 1. Find the download page link (updated selector)
+        download_link_element = soup.select_one('.watch__or__download_buttons a[href*="download"]')
         
         if not download_link_element:
             return []
