@@ -1,0 +1,26 @@
+{
+  "installCommand": "pnpm install",
+  "builds": [
+    {
+      "src": "packages/client/vite.config.ts",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "packages/client/dist"
+      }
+    },
+    {
+      "src": "packages/server/src/index.ts",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/trpc/(.*)",
+      "dest": "/packages/server/src/index.ts"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/packages/client/dist/index.html"
+    }
+  ]
+}
