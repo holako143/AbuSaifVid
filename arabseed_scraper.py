@@ -78,8 +78,8 @@ class ArabSeedScraper:
 
         soup = BeautifulSoup(html_content, 'html.parser')
         
-        # 1. Find the download page link (updated selector)
-        download_link_element = soup.select_one('.watch__or__download_buttons a[href*="download"]')
+        # 1. Find the download page link (new, more specific selector)
+        download_link_element = soup.select_one('.watch__and__download a.download__btn')
         
         if not download_link_element:
             return []
@@ -100,30 +100,32 @@ class ArabSeedScraper:
         
         download_links = []
         
-        # 3. استخراج الروابط والجودات من صفحة التحميل
-        # البحث عن كل الروابط التي تحتوي على كلمة "التحميل الان"
-        all_download_buttons = download_soup.find_all('a', text=lambda t: t and 'التحميل الان' in t)
-        
-        for button in all_download_buttons:
-            link_url = button.get('href')
+        # 3. Extract links and qualities from the download page (updated logic)
+        download_items = download_soup.select('.downloads__list li')
+
+        for item in download_items:
+            link_element = item.select_one('a')
+            if not link_element:
+                continue
             
-            # البحث عن العنصر الأب لتحديد السيرفر والجودة
-            parent_div = button.find_parent('div')
-            if parent_div:
-                # محاولة استخراج اسم السيرفر
-                server_name_tag = parent_div.find('h4')
-                server = server_name_tag.text.strip() if server_name_tag else "غير محدد"
-                
-                # محاولة استخراج الجودة من نص الزر
-                quality_match = [q for q in ['1080p', '720p', '480p', '360p', '240p'] if q in button.text]
-                quality = quality_match[0] if quality_match else "غير محدد"
-                
-                if link_url:
-                    download_links.append({
-                        'quality': quality,
-                        'server': server,
-                        'link': link_url
-                    })
+            link_url = link_element.get('href')
+
+            quality = "غير محدد"
+            quality_element = item.select_one('.quality span')
+            if quality_element:
+                quality = quality_element.text.strip()
+
+            server = "غير محدد"
+            server_element = item.select_one('.server span')
+            if server_element:
+                server = server_element.text.strip()
+
+            if link_url:
+                download_links.append({
+                    'quality': quality,
+                    'server': server,
+                    'link': link_url
+                })
 
         return download_links
 
