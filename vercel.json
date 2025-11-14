@@ -1,0 +1,25 @@
+{
+  "builds": [
+    {
+      "src": "packages/client/vite.config.ts",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    },
+    {
+      "src": "packages/server/src/index.ts",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/trpc/(.*)",
+      "dest": "packages/server/src/index.ts"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "packages/client/dist/$1"
+    }
+  ]
+}
