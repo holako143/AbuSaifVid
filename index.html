@@ -18,19 +18,28 @@
             color: var(--text-color);
             margin: 0;
         }
+        .header-container {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background-color: var(--dark-color);
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 0 20px; /* Adjusted padding */
         }
         header {
             text-align: center;
-            padding: 20px 0;
+            padding: 10px 0; /* Adjusted padding */
             border-bottom: 2px solid var(--primary-color);
         }
         .search-bar {
             display: flex;
-            margin-bottom: 30px;
+            margin-top: 15px; /* Added margin-top */
+            margin-bottom: 15px; /* Adjusted margin-bottom */
         }
         .search-bar input {
             flex-grow: 1;
@@ -113,18 +122,89 @@
             text-align: center;
             padding: 20px;
         }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .search-bar {
+                flex-direction: column;
+            }
+            .search-bar input, .search-bar button {
+                border-radius: 8px;
+                width: 100%;
+                box-sizing: border-box;
+            }
+            .search-bar button {
+                margin-top: 10px;
+            }
+            .swiper-container {
+                height: 380px;
+            }
+            .swiper-slide {
+                width: 250px;
+                height: 380px;
+            }
+            h1 {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* Search Results Styling */
+        #search-results {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            padding: 20px 0;
+        }
+        .search-result-item {
+            position: relative;
+            cursor: pointer;
+            overflow: hidden;
+            border-radius: 8px;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeIn 0.5s ease forwards;
+        }
+        .search-result-item img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        .search-result-item .title {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+            color: white;
+            padding: 8px;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>جالب روابط عرب سيد</h1>
-        </header>
-        <div class="search-bar">
-            <input type="text" id="search-input" placeholder="ابحث عن فيلم أو مسلسل...">
-            <button onclick="searchContent()">بحث</button>
+    <div class="header-container">
+        <div class="container">
+            <header>
+                <h1>جالب روابط عرب سيد</h1>
+            </header>
+            <div class="search-bar">
+                <input type="text" id="search-input" placeholder="ابحث عن فيلم أو مسلسل...">
+                <button onclick="searchContent()">بحث</button>
+            </div>
         </div>
+    </div>
+
+    <div class="container">
         <div id="status-message"></div>
+        <div id="search-results"></div> <!-- Container for search results -->
         <div class="swiper-container">
             <div class="swiper-wrapper" id="content-slider">
                 <!-- البطاقات ستضاف هنا -->
@@ -137,8 +217,10 @@
     <script>
         const API_BASE_URL = '';
         const contentSlider = document.getElementById('content-slider');
+        const swiperContainer = document.querySelector('.swiper-container');
         const searchInput = document.getElementById('search-input');
         const statusMessage = document.getElementById('status-message');
+        const searchResultsContainer = document.getElementById('search-results');
         let swiper;
 
         async function fetchData(endpoint, method = 'GET', body = null) {
@@ -170,13 +252,40 @@
 
         async function searchContent() {
             const query = searchInput.value.trim();
-            if (!query) return;
+             if (!query) {
+                searchResultsContainer.innerHTML = '';
+                swiperContainer.style.display = 'block';
+                return;
+            }
             statusMessage.innerHTML = `جاري البحث عن: ${query}...`;
+            swiperContainer.style.display = 'none';
+            searchResultsContainer.innerHTML = '';
             const data = await fetchData(`/search?query=${encodeURIComponent(query)}`);
             statusMessage.innerHTML = '';
             if (data) {
-                displayContent(data);
+                displaySearchResults(data);
             }
+        }
+
+        function displaySearchResults(results) {
+            if (results.length === 0) {
+                statusMessage.innerHTML = 'لا توجد نتائج.';
+                return;
+            }
+            results.forEach((item, index) => {
+                const resultItem = document.createElement('div');
+                resultItem.className = 'search-result-item';
+                resultItem.style.animationDelay = `${index * 0.1}s`;
+                resultItem.innerHTML = `
+                    <img src="${item.image_url}" alt="${item.title}" onerror="this.src='https://via.placeholder.com/300x450';">
+                    <div class="title">${item.title}</div>
+                `;
+                 resultItem.addEventListener('click', () => {
+                    // Placeholder for showing details. Could be a modal or similar.
+                    alert(`Selected: ${item.title}`);
+                });
+                searchResultsContainer.appendChild(resultItem);
+            });
         }
 
         function displayContent(content) {
@@ -205,9 +314,9 @@
             if (swiper) swiper.destroy();
             swiper = new Swiper('.swiper-container', {
                 loop: content.length > 3,
-                slidesPerView: 'auto',
+                slidesPerView: window.innerWidth < 768 ? 1 : 'auto',
                 spaceBetween: 20,
-                centeredSlides: true,
+                centeredSlides: window.innerWidth < 768 ? false : true,
                 pagination: {
                     el: '.swiper-pagination',
                     clickable: true,
