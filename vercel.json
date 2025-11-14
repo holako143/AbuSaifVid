@@ -1,14 +1,10 @@
 {
   "version": 2,
+  "installCommand": "pnpm install --shamefully-hoist",
   "builds": [
     {
       "src": "packages/client/package.json",
-      "use": "@vercel/static-build",
-      "configuration": {
-        "installCommand": "pnpm install",
-        "buildCommand": "pnpm --filter client build",
-        "outputDirectory": "packages/client/dist"
-      }
+      "use": "@vercel/static-build"
     },
     {
       "src": "packages/server/src/index.ts",
@@ -22,7 +18,7 @@
     },
     {
       "source": "/(.*)",
-      "destination": "/packages/client/dist/index.html"
+      "destination": "/index.html"
     }
   ]
 }
