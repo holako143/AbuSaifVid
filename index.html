@@ -111,6 +111,10 @@
             background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
             text-align: center;
         }
+        .card-title h3 {
+            margin: 0;
+            font-size: 1.1rem;
+        }
         .links-container {
             position: absolute;
             top: 0;
@@ -157,6 +161,12 @@
 
         /* Responsive Design */
         @media (max-width: 768px) {
+            body {
+                padding-top: 60px;
+            }
+            .container {
+                padding: 0 15px;
+            }
             .search-bar {
                 flex-direction: column;
             }
@@ -169,14 +179,31 @@
                 margin-top: 10px;
             }
             .swiper-container {
-                height: 380px;
+                height: 450px; /* Increased height for larger cards */
             }
             .swiper-slide {
-                width: 250px;
-                height: 380px;
+                width: 280px;  /* Increased card width */
+                height: 420px; /* Increased card height */
             }
             h1 {
                 font-size: 1.5rem;
+            }
+            .section-title {
+                font-size: 1.5rem;
+                margin-top: 30px;
+                margin-bottom: 15px;
+            }
+            .card-title h3 {
+                font-size: 1rem;
+            }
+        }
+        @media (max-width: 480px) {
+            .swiper-slide {
+                width: 240px;
+                height: 360px;
+            }
+            .swiper-container {
+                height: 380px;
             }
         }
 
