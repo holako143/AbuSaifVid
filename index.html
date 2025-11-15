@@ -492,6 +492,11 @@
                 ]);
 
                 displayDetailsAndLinks(linksContainer, details, links);
+
+                // Scroll into view after expanding
+                setTimeout(() => {
+                    slide.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 400); // Delay to allow animation to start
             }
         }
 
@@ -574,7 +579,7 @@
                 centeredSlides: true,
                 slidesPerView: 'auto',
                 loop: true,
-                spaceBetween: 0,
+                spaceBetween: 30, // Add space between slides
                 coverflowEffect: {
                     rotate: 50,
                     stretch: 0,
