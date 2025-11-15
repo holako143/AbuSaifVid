@@ -40,11 +40,11 @@ class ArabSeedScraper:
         soup = BeautifulSoup(html_content, 'html.parser')
         results = []
         
-        # Updated selector for search results to get the whole item container
-        content_items = soup.select('.item__contents')
+        # More specific selector for search result items
+        content_items = soup.select('.widget-body .item__contents')
             
         for item in content_items:
-            link_element = item.select_one('a')
+            link_element = item.select_one('a.movie__block')
             if not link_element:
                 continue
 
@@ -52,7 +52,12 @@ class ArabSeedScraper:
             url = link_element.get('href')
             
             image_element = item.select_one('img')
-            image_url = image_element.get('data-src', '') if image_element else ''
+            # Try to get 'data-src' first, then fall back to 'src'
+            image_url = ''
+            if image_element:
+                image_url = image_element.get('data-src', image_element.get('src', ''))
+            if not image_url:
+                image_url = 'x'
 
             # تنظيف العنوان من التقييمات والجودة
             title = re.sub(r'^\d+\.\d+\s(افلام|مسلسلات)\s(اجنبي|عربي|تركيه|...)\s', '', title).strip()
@@ -158,7 +163,12 @@ class ArabSeedScraper:
             url = link_element.get('href')
 
             image_element = item.select_one('img')
-            image_url = image_element.get('data-src', '') if image_element else ''
+            # Try to get 'data-src' first, then fall back to 'src'
+            image_url = ''
+            if image_element:
+                image_url = image_element.get('data-src', image_element.get('src', ''))
+            if not image_url:
+                image_url = 'x'
 
             # تنظيف العنوان من التقييمات والجودة
             title = re.sub(r'^\d+\.\d+\s(افلام|مسلسلات)\s(اجنبي|عربي|تركيه|...)\s', '', title).strip()
