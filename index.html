@@ -81,7 +81,7 @@
             box-sizing: border-box; /* Ensure padding is included in width */
         }
         .swiper-slide {
-            width: 260px; /* Slightly smaller width for better centering */
+            width: 300px; /* Larger width for a more prominent center slide */
             height: 380px; /* Slightly smaller height */
             position: relative;
             overflow: hidden;
@@ -263,8 +263,8 @@
             color: var(--primary-color);
             margin-top: 40px;
             margin-bottom: 20px;
-            border-right: 4px solid var(--primary-color);
-            padding-right: 15px;
+            border-inline-start: 4px solid var(--primary-color);
+            padding-inline-start: 15px;
         }
     </style>
 </head>
@@ -490,10 +490,19 @@
 
         function initSwiper(containerId) {
             new Swiper(containerId, {
-                loop: true,
-                slidesPerView: 'auto',
-                spaceBetween: 20,
+                effect: 'coverflow',
+                grabCursor: true,
                 centeredSlides: true,
+                slidesPerView: 'auto',
+                loop: true,
+                spaceBetween: 0,
+                coverflowEffect: {
+                    rotate: 50,
+                    stretch: 0,
+                    depth: 100,
+                    modifier: 1,
+                    slideShadows: true,
+                },
                 pagination: {
                     el: `${containerId} .swiper-pagination`,
                     clickable: true,
