@@ -429,12 +429,11 @@
         }
 
         // Modal Logic
-        const modal = document.getElementById('links-modal');
-        const modalTitle = document.getElementById('modal-title');
-        const modalLinksContainer = document.getElementById('modal-links-container');
-        const closeButton = document.querySelector('.close-button');
-
         async function openModal(url, title) {
+            const modal = document.getElementById('links-modal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalLinksContainer = document.getElementById('modal-links-container');
+
             modalTitle.textContent = `روابط تحميل: ${title}`;
             modalLinksContainer.innerHTML = 'جاري جلب الروابط...';
             modal.style.display = 'block';
@@ -444,15 +443,23 @@
         }
 
         function closeModal() {
+            const modal = document.getElementById('links-modal');
             modal.style.display = 'none';
         }
 
-        closeButton.onclick = closeModal;
-        window.onclick = (event) => {
-            if (event.target == modal) {
-                closeModal();
+        // Attach close events once the DOM is loaded
+        window.addEventListener('DOMContentLoaded', (event) => {
+            const modal = document.getElementById('links-modal');
+            const closeButton = document.querySelector('.close-button');
+            if(closeButton) {
+                closeButton.onclick = closeModal;
             }
-        };
+            window.onclick = (event) => {
+                if (event.target == modal) {
+                    closeModal();
+                }
+            };
+        });
 
         window.onload = () => {
             loadLatestContent();
