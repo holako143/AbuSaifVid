@@ -74,6 +74,30 @@ async def get_links(item: ContentItem):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
 
+# 4. مسار جلب أحدث الأفلام
+@app.get("/movies", response_model=List[ContentItem], summary="جلب أحدث الأفلام")
+async def get_movies():
+    """
+    يجلب قائمة بأحدث الأفلام المضافة.
+    """
+    try:
+        latest_movies = scraper.get_latest_movies()
+        return latest_movies
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
+
+# 5. مسار جلب أحدث المسلسلات
+@app.get("/tvshows", response_model=List[ContentItem], summary="جلب أحدث المسلسلات")
+async def get_tvshows():
+    """
+    يجلب قائمة بأحدث المسلسلات المضافة.
+    """
+    try:
+        latest_tvshows = scraper.get_latest_tvshows()
+        return latest_tvshows
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
+
 # مسار الصفحة الرئيسية (للتأكد من عمل الـ API)
 @app.get("/", summary="حالة الـ API")
 async def root():

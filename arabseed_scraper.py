@@ -139,20 +139,16 @@ class ArabSeedScraper:
 
         return download_links
 
-    def get_latest_content(self):
-        """
-        جلب أحدث المحتوى من الصفحة الرئيسية.
-        يعود بقائمة من النتائج: [{title, url, image_url}]
-        """
-        html_content = self._fetch_page(urljoin(BASE_URL, "main0/"))
+    def _scrape_content_page(self, page_path):
+        """دالة عامة لكشط المحتوى من صفحة معينة."""
+        html_content = self._fetch_page(urljoin(BASE_URL, page_path))
         if not html_content:
             return []
 
         soup = BeautifulSoup(html_content, 'html.parser')
-        latest_content = []
+        content_list = []
         
-        # Updated selector to find content cards containers
-        content_items = soup.select('li.box__xs__2 .item__contents')
+        content_items = soup.select('li.box__xs__2 .item__contents, .widget-body .item__contents')
         
         for item in content_items:
             link_element = item.select_one('a.movie__block')
@@ -163,27 +159,36 @@ class ArabSeedScraper:
             url = link_element.get('href')
 
             image_element = item.select_one('img')
-            # Try to get 'data-src' first, then fall back to 'src'
             image_url = ''
             if image_element:
                 image_url = image_element.get('data-src', image_element.get('src', ''))
             if not image_url:
                 image_url = 'x'
 
-            # تنظيف العنوان من التقييمات والجودة
             title = re.sub(r'^\d+\.\d+\s(افلام|مسلسلات)\s(اجنبي|عربي|تركيه|...)\s', '', title).strip()
-            title = re.sub(r'\s\(\s\d+\s\)', '', title).strip() # إزالة السنة بين قوسين
+            title = re.sub(r'\s\(\s\d+\s\)', '', title).strip()
             
             if title and url:
                 full_url = url if url.startswith('http') else urljoin(BASE_URL, url)
-                latest_content.append({'title': title, 'url': full_url, 'image_url': image_url})
+                content_list.append({'title': title, 'url': full_url, 'image_url': image_url})
 
-        # إزالة التكرارات
         unique_content = []
         seen_urls = set()
-        for item in latest_content:
+        for item in content_list:
             if item['url'] not in seen_urls:
                 unique_content.append(item)
                 seen_urls.add(item['url'])
                 
-        return unique_content[:20] # العودة بأول 20 عنصر كأحدث محتوى
+        return unique_content[:20]
+
+    def get_latest_content(self):
+        """جلب أحدث المحتوى من الصفحة الرئيسية."""
+        return self._scrape_content_page("main0/")
+
+    def get_latest_movies(self):
+        """جلب أحدث الأفلام."""
+        return self._scrape_content_page("category/افلام-اجنبية/")
+
+    def get_latest_tvshows(self):
+        """جلب أحدث المسلسلات."""
+        return self._scrape_content_page("category/مسلسلات-اجنبية/")

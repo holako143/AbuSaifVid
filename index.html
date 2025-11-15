@@ -17,10 +17,13 @@
             background-color: var(--dark-color);
             color: var(--text-color);
             margin: 0;
+            padding-top: 70px; /* Prevent content from hiding behind fixed navbar */
         }
         .navbar {
-            position: sticky;
+            position: fixed;
             top: 0;
+            left: 0;
+            width: 100%;
             z-index: 1001;
             background-color: #1a1a1a;
             padding: 15px 0;
@@ -255,6 +258,14 @@
             padding: 10px 0;
             border-bottom: 1px dashed #555;
         }
+        .section-title {
+            font-size: 1.8rem;
+            color: var(--primary-color);
+            margin-top: 40px;
+            margin-bottom: 20px;
+            border-right: 4px solid var(--primary-color);
+            padding-right: 15px;
+        }
     </style>
 </head>
 <body>
@@ -280,10 +291,25 @@
     <div class="container main-content">
         <div id="status-message"></div>
         <div id="search-results"></div> <!-- Container for search results -->
-        <div class="swiper-container">
-            <div class="swiper-wrapper" id="content-slider">
-                <!-- البطاقات ستضاف هنا -->
-            </div>
+
+        <!-- Section for Latest Content -->
+        <h2 class="section-title">أحدث الإضافات</h2>
+        <div id="latest-swiper" class="swiper-container">
+            <div class="swiper-wrapper"></div>
+            <div class="swiper-pagination"></div>
+        </div>
+
+        <!-- Section for Latest Movies -->
+        <h2 class="section-title">جديد الأفلام</h2>
+        <div id="movies-swiper" class="swiper-container">
+            <div class="swiper-wrapper"></div>
+            <div class="swiper-pagination"></div>
+        </div>
+
+        <!-- Section for Latest TV Shows -->
+        <h2 class="section-title">جديد المسلسلات</h2>
+        <div id="tvshows-swiper" class="swiper-container">
+            <div class="swiper-wrapper"></div>
             <div class="swiper-pagination"></div>
         </div>
     </div>
@@ -316,13 +342,21 @@
             }
         }
 
-        async function loadLatestContent() {
-            statusMessage.innerHTML = 'جاري تحميل أحدث الإضافات...';
-            const data = await fetchData('/latest');
+        async function loadAllSections() {
+            statusMessage.innerHTML = 'جاري تحميل المحتوى...';
+
+            // Fetch all sections in parallel
+            const [latest, movies, tvshows] = await Promise.all([
+                fetchData('/latest'),
+                fetchData('/movies'),
+                fetchData('/tvshows')
+            ]);
+
             statusMessage.innerHTML = '';
-            if (data) {
-                displayContent(data);
-            }
+
+            if (latest) displayContent('#latest-swiper', latest);
+            if (movies) displayContent('#movies-swiper', movies);
+            if (tvshows) displayContent('#tvshows-swiper', tvshows);
         }
 
         async function searchContent() {
@@ -360,14 +394,15 @@
             });
         }
 
-        function displayContent(content) {
-            contentSlider.innerHTML = '';
+        function displayContent(containerId, content) {
+            const swiperWrapper = document.querySelector(`${containerId} .swiper-wrapper`);
+            swiperWrapper.innerHTML = '';
+
             if (content.length === 0) {
-                statusMessage.innerHTML = 'لا توجد نتائج.';
-                if (swiper) swiper.destroy();
-                swiper = new Swiper('.swiper-container', {}); // Re-init empty swiper
+                document.querySelector(containerId).style.display = 'none';
                 return;
             }
+
             content.forEach(item => {
                 const slide = document.createElement('div');
                 slide.className = 'swiper-slide';
@@ -380,20 +415,10 @@
                     if (e.target.classList.contains('link-button')) return;
                     toggleLinks(slide, item.url, item.title);
                 });
-                contentSlider.appendChild(slide);
+                swiperWrapper.appendChild(slide);
             });
 
-            if (swiper) swiper.destroy();
-            swiper = new Swiper('.swiper-container', {
-                loop: true,
-                slidesPerView: 'auto',
-                spaceBetween: 20,
-                centeredSlides: true,
-                pagination: {
-                    el: '.swiper-pagination',
-                    clickable: true,
-                },
-            });
+            initSwiper(containerId);
         }
 
         async function toggleLinks(slide, url, title) {
@@ -463,8 +488,21 @@
             };
         });
 
+        function initSwiper(containerId) {
+            new Swiper(containerId, {
+                loop: true,
+                slidesPerView: 'auto',
+                spaceBetween: 20,
+                centeredSlides: true,
+                pagination: {
+                    el: `${containerId} .swiper-pagination`,
+                    clickable: true,
+                },
+            });
+        }
+
         window.onload = () => {
-            loadLatestContent();
+            loadAllSections();
 
             const searchIcon = document.getElementById('search-icon');
             const searchInput = document.getElementById('search-input');
