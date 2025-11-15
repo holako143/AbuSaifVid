@@ -87,8 +87,11 @@
             overflow: hidden;
             border-radius: 12px; /* Smoother radius */
             cursor: pointer;
-            transition: transform 0.3s, box-shadow 0.3s;
+            transition: transform 0.4s, box-shadow 0.4s, height 0.4s ease-in-out;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        }
+        .swiper-slide-active {
+            transform: scale(1.08);
         }
         .swiper-slide:hover {
             transform: scale(1.05);
@@ -122,9 +125,15 @@
             transition: transform 0.4s ease-in-out, opacity 0.4s ease-in-out;
             color: #fff;
         }
+        .swiper-slide.expanded {
+            height: auto;
+            padding-bottom: 20px;
+        }
         .swiper-slide.expanded .links-container {
+            position: static;
             transform: translateY(0);
             opacity: 1;
+            overflow-y: visible;
         }
         .link-item {
             display: flex;
@@ -267,6 +276,19 @@
             margin-bottom: 20px;
             border-inline-start: 4px solid var(--primary-color);
             padding-inline-start: 15px;
+        }
+        .details-content .story {
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: #ccc;
+        }
+        .details-content .meta-list {
+            list-style: none;
+            padding: 0;
+            font-size: 0.9rem;
+        }
+        .details-content .meta-list li {
+            padding: 5px 0;
         }
     </style>
 </head>
@@ -434,27 +456,55 @@
             slide.classList.toggle('expanded');
 
             if (!isExpanded && linksContainer.innerHTML === '') {
-                linksContainer.innerHTML = 'جاري جلب الروابط...';
-                const links = await fetchData('/links', 'POST', { url: url, title: title });
-                displayDownloadLinks(linksContainer, links);
+                linksContainer.innerHTML = 'جاري جلب التفاصيل...';
+
+                // Fetch details and links in parallel
+                const [details, links] = await Promise.all([
+                    fetchData('/details', 'POST', { url: url, title: title }),
+                    fetchData('/links', 'POST', { url: url, title: title })
+                ]);
+
+                displayDetailsAndLinks(linksContainer, details, links);
             }
         }
 
-        function displayDownloadLinks(container, links) {
-            container.innerHTML = '';
-            if (!links || links.length === 0) {
-                container.innerHTML = 'لا توجد روابط تحميل.';
-                return;
+        function displayDetailsAndLinks(container, details, links) {
+            container.innerHTML = ''; // Clear loading message
+
+            let detailsHtml = '<div class="details-content">';
+            if (details) {
+                if (details.story) {
+                    detailsHtml += `<p class="story">${details.story}</p>`;
+                }
+                detailsHtml += '<ul class="meta-list">';
+                if (details.year) {
+                    detailsHtml += `<li><strong>سنة الإنتاج:</strong> ${details.year}</li>`;
+                }
+                if (details.section) {
+                    detailsHtml += `<li><strong>القسم:</strong> ${details.section}</li>`;
+                }
+                if (details.imdb_rating) {
+                    detailsHtml += `<li><strong>تقييم IMDb:</strong> ${details.imdb_rating}</li>`;
+                }
+                detailsHtml += '</ul>';
             }
-            links.forEach(link => {
-                const item = document.createElement('div');
-                item.className = 'link-item';
-                item.innerHTML = `
-                    <span>[${link.quality}] - ${link.server}</span>
-                    <a href="${link.link}" target="_blank" class="link-button" onclick="event.stopPropagation();">تحميل</a>
-                `;
-                container.appendChild(item);
-            });
+            detailsHtml += '</div>';
+
+            let linksHtml = '<h3>روابط التحميل</h3>';
+            if (!links || links.length === 0) {
+                linksHtml += '<p>لا توجد روابط تحميل متاحة.</p>';
+            } else {
+                links.forEach(link => {
+                    linksHtml += `
+                        <div class="link-item">
+                            <span>[${link.quality}] - ${link.server}</span>
+                            <a href="${link.link}" target="_blank" class="link-button" onclick="event.stopPropagation();">تحميل</a>
+                        </div>
+                    `;
+                });
+            }
+
+            container.innerHTML = detailsHtml + linksHtml;
         }
 
         // Modal Logic

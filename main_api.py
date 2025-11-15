@@ -34,6 +34,12 @@ class DownloadLink(BaseModel):
     server: str
     link: str
 
+class ContentDetails(BaseModel):
+    story: str = None
+    year: str = None
+    section: str = None
+    imdb_rating: str = None
+
 # 1. مسار جلب أحدث المحتوى
 @app.get("/latest", response_model=List[ContentItem], summary="جلب أحدث الأفلام والمسلسلات")
 async def get_latest():
@@ -95,6 +101,20 @@ async def get_tvshows():
     try:
         latest_tvshows = scraper.get_latest_tvshows()
         return latest_tvshows
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
+
+# 6. مسار جلب تفاصيل المحتوى
+@app.post("/details", response_model=ContentDetails, summary="جلب تفاصيل المحتوى")
+async def get_details(item: ContentItem):
+    """
+    يجلب تفاصيل إضافية لفيلم أو مسلسل محدد.
+    """
+    if not item.url:
+        raise HTTPException(status_code=400, detail="Content URL is required.")
+    try:
+        details = scraper.get_content_details(item.url)
+        return details
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
 

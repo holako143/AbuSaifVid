@@ -192,3 +192,32 @@ class ArabSeedScraper:
     def get_latest_tvshows(self):
         """جلب أحدث المسلسلات."""
         return self._scrape_content_page("category/مسلسلات-اجنبية/")
+
+    def get_content_details(self, content_url):
+        """جلب تفاصيل إضافية من صفحة المحتوى."""
+        html_content = self._fetch_page(content_url)
+        if not html_content:
+            return {}
+
+        soup = BeautifulSoup(html_content, 'html.parser')
+        details = {}
+
+        # Extract Story
+        story_element = soup.select_one('.story p')
+        if story_element:
+            details['story'] = story_element.text.strip()
+
+        # Extract Meta Info (Year, Section, IMDb Rating)
+        meta_elements = soup.select('.Single--Meta-Items li')
+        for item in meta_elements:
+            key_element = item.select_one('span')
+            value = item.text.replace(key_element.text, '').strip() if key_element else item.text.strip()
+
+            if 'سنة' in key_element.text:
+                details['year'] = value
+            elif 'قسم' in key_element.text:
+                details['section'] = value
+            elif 'IMDb' in key_element.text:
+                details['imdb_rating'] = value
+
+        return details
