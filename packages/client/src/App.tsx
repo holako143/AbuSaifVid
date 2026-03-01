@@ -1,12 +1,16 @@
-import { Auth } from './Auth';
+import { LatestAdditions } from './components/LatestAdditions';
+import { Header } from './components/Header';
+import { ContentSection } from './components/ContentSection';
 
 function App() {
   return (
-    <div className="bg-gray-900 text-white min-h-screen flex items-center justify-center">
-      <div className="flex flex-col gap-8">
-        <h1 className="text-4xl text-center">React 19 + Tailwind CSS 4 + tRPC</h1>
-        <Auth />
-      </div>
+    <div className="bg-gray-900 text-white min-h-screen">
+      <Header />
+      <main className="container mx-auto py-8">
+        <LatestAdditions />
+        <ContentSection title="أحدث الأفلام" />
+        <ContentSection title="أحدث المسلسلات" />
+      </main>
     </div>
   );
 }

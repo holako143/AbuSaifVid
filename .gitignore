@@ -17,3 +17,4 @@ lerna-debug.log*
 # Other
 .env
 .DS_Store
+pnpm_output.log
